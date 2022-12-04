@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+<changeSet id="1" author="cristian.paris">
+
+    <createTable tableName="countries">
+        <column name="id" type="bigint" autoIncrement="true">
+            <constraints primaryKey="true" primaryKeyName="countries_pk" />
+        </column>
+        <column name="nume_tara" type="varchar2">
+            <constraints unique="true" uniqueConstraintName="countries_nume_tara_uq" />
+        </column>
+        <column name="latitudine" type="double" />
+        <column name="longitudine" type="double" />
+    </createTable>
+
+    <createTable tableName="cities">
+        <column name="id" type="bigint" autoIncrement="true">
+            <constraints primaryKey="true" primaryKeyName="cities_pk" />
+        </column>
+        <column name="id_tara" type="bigint">
+            <constraints unique="true" uniqueConstraintName="cities_id_tara_uq" />
+        </column>
+        <column name="nume_oras" type="varchar2">
+            <constraints unique="true" uniqueConstraintName="cities_nume_oras_uq" />
+        </column>
+        <column name="latitudine" type="double" />
+        <column name="longitudine" type="double" />
+    </createTable>
+    
+    <createTable tableName="temperatures">
+        <column name="id" type="bigint" autoIncrement="true">
+            <constraints primaryKey="true" primaryKeyName="temperatures_pk" />
+        </column>
+        <column name="valoare" type="double" />
+        <column name="timestamp" type="datetime">
+            <constraints unique="true" uniqueConstraintName="temperatures_timestamp_uq" />
+        </column>
+        <column name="id_oras" type="bigint">
+            <constraints unique="true" uniqueConstraintName="temperatures_id_oras_uq" />
+        </column>
+    </createTable>
+
+    <rollback>
+        drop table cities
+        drop table countries
+        drop table temperatures
+    </rollback>
+
+    <addForeignKeyConstraint baseTableName="cities" baseColumnNames="id_tara" constraintName="cities_id_tara_fk"
+                             referencedTableName="countries" referencedColumnNames="id" />
+    
+    <addForeignKeyConstraint baseTableName="temperatures" baseColumnNames="id_oras" constraintName="temperatures_id_oras_fk"
+                             referencedTableName="cities" referencedColumnNames="id" />
+
+</changeSet>
+</databaseChangeLog>
