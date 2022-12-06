@@ -12,9 +12,7 @@
         <column name="id" type="bigint" autoIncrement="true">
             <constraints primaryKey="true" primaryKeyName="countries_pk" />
         </column>
-        <column name="nume_tara" type="varchar2">
-            <constraints unique="true" uniqueConstraintName="countries_nume_tara_uq" />
-        </column>
+        <column name="nume_tara" type="varchar2" />
         <column name="latitudine" type="double" />
         <column name="longitudine" type="double" />
     </createTable>
@@ -23,12 +21,8 @@
         <column name="id" type="bigint" autoIncrement="true">
             <constraints primaryKey="true" primaryKeyName="cities_pk" />
         </column>
-        <column name="id_tara" type="bigint">
-            <constraints unique="true" uniqueConstraintName="cities_id_tara_uq" />
-        </column>
-        <column name="nume_oras" type="varchar2">
-            <constraints unique="true" uniqueConstraintName="cities_nume_oras_uq" />
-        </column>
+        <column name="id_tara" type="bigint" />
+        <column name="nume_oras" type="varchar2" />
         <column name="latitudine" type="double" />
         <column name="longitudine" type="double" />
     </createTable>
@@ -38,12 +32,8 @@
             <constraints primaryKey="true" primaryKeyName="temperatures_pk" />
         </column>
         <column name="valoare" type="double" />
-        <column name="timestamp" type="datetime">
-            <constraints unique="true" uniqueConstraintName="temperatures_timestamp_uq" />
-        </column>
-        <column name="id_oras" type="bigint">
-            <constraints unique="true" uniqueConstraintName="temperatures_id_oras_uq" />
-        </column>
+        <column name="timestamp" type="datetime" />
+        <column name="id_oras" type="bigint" />
     </createTable>
 
     <rollback>
@@ -51,6 +41,10 @@
         drop table countries
         drop table temperatures
     </rollback>
+    
+    <addUniqueConstraint tableName="countries" columnNames="nume_tara" constraintName="countries_nume_tara_uq" />
+    <addUniqueConstraint tableName="cities" columnNames="id_tara, nume_oras" constraintName="cities_id_tara_nume_oras_uq" />
+    <addUniqueConstraint tableName="temperatures" columnNames="id_oras, timestamp" constraintName="temperatures_id_oras_timestamp_uq" />
 
     <addForeignKeyConstraint baseTableName="cities" baseColumnNames="id_tara" constraintName="cities_id_tara_fk"
                              referencedTableName="countries" referencedColumnNames="id" />
