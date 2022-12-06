@@ -1,4 +1,4 @@
-package com.sprc_web_app.model.dto;
+package com.sprc_web_app.model.dto.response;
 
 import lombok.Data;
 
