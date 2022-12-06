@@ -28,4 +28,9 @@ public class CityController {
         return ResponseEntity.ok(cityService.getAllCities());
     }
 
+    @GetMapping("/country/{id_Tara}")
+    public ResponseEntity<List<CityDTO>> getAllCitiesByCountry(@PathVariable Long id_Tara) {
+        return ResponseEntity.ok(cityService.getAllCitiesByCountryId(id_Tara));
+    }
+
 }

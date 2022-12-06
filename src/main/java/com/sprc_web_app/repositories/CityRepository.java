@@ -12,5 +12,6 @@ public interface CityRepository extends JpaRepository<CityEntity, Long> {
     @Query("SELECT c FROM CityEntity c left join fetch c.country")
     List<CityEntity> findAll();
 
+    List<CityEntity> findAllByCountryId(Long idTara);
 }
 

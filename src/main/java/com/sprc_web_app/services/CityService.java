@@ -32,7 +32,10 @@ public class CityService {
     }
 
     public List<CityDTO> getAllCities() {
-        var aux = cityRepository.findAll();
-        return cityMapper.mapCityEntitiesToDTOs(aux);
+        return cityMapper.mapCityEntitiesToDTOs(cityRepository.findAll());
+    }
+
+    public List<CityDTO> getAllCitiesByCountryId(Long idTara) {
+        return cityMapper.mapCityEntitiesToDTOs(cityRepository.findAllByCountryId(idTara));
     }
 }
