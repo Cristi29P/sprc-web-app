@@ -12,7 +12,7 @@ import java.util.List;
 @Table(name = "cities")
 public class CityEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "cities_id_seq", strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false, unique = true)
     private Long id;
 
@@ -21,13 +21,13 @@ public class CityEntity {
     private CountryEntity country;
 
     @Column(name = "nume_oras", unique = true)
-    private String nume_oras;
+    private String nume;
 
     @Column(name = "latitudine")
-    private Double latitudine;
+    private Double lat;
 
     @Column(name = "longitudine")
-    private Double longitudine;
+    private Double lon;
 
     @OneToMany(mappedBy = "city")
     private List<TemperatureEntity> temperatures;

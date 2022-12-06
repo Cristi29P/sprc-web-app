@@ -13,18 +13,18 @@ import java.util.List;
 @Table(name = "countries")
 public class CountryEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "countries_id_seq", strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false, unique = true)
     private Long id;
 
     @Column(name = "nume_tara", unique = true)
-    private String nume_tara;
+    private String nume;
 
     @Column(name = "latitudine")
-    private Double latitudine;
+    private Double lat;
 
     @Column(name = "longitudine")
-    private Double longitudine;
+    private Double lon;
 
     @OneToMany(mappedBy = "country")
     private List<CityEntity> cities;
