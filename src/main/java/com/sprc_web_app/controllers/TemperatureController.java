@@ -44,4 +44,15 @@ public class TemperatureController {
                                                                          @RequestParam(required = false) String until) {
         return new ResponseEntity<>(temperatureService.getTemperaturesByCountry(id_tara, from, until), HttpStatus.OK);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TemperatureIdResponse> updateTemperature(@PathVariable Long id, @Valid @RequestBody TemperatureRequestDTO temperatureRequestDTO) {
+        return new ResponseEntity<>(temperatureService.updateTemperature(id, temperatureRequestDTO), HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteTemperature(@PathVariable Long id) {
+        temperatureService.deleteTemperature(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

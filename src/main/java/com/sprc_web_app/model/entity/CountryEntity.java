@@ -26,6 +26,6 @@ public class CountryEntity {
     @Column(name = "longitudine")
     private Double lon;
 
-    @OneToMany(mappedBy = "country")
+    @OneToMany(mappedBy = "country", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CityEntity> cities;
 }

@@ -33,4 +33,14 @@ public class CityController {
         return ResponseEntity.ok(cityService.getAllCitiesByCountryId(id_Tara));
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<CityIdResponse> updateCity(@PathVariable Long id, @Valid @RequestBody CityRequestDTO cityRequestDTO) {
+        return ResponseEntity.ok(cityService.updateCity(id, cityRequestDTO));
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteCity(@PathVariable Long id) {
+        cityService.deleteCity(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

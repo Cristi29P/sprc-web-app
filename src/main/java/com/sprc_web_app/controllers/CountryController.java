@@ -28,4 +28,15 @@ public class CountryController {
         return ResponseEntity.ok(countryService.getAllCountries());
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<CountryIdResponse> updateCountry(@PathVariable Long id, @Valid @RequestBody CountryRequestDTO countryRequestDTO) {
+        return ResponseEntity.ok(countryService.updateCountry(id, countryRequestDTO));
+    }
+
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteCountry(@PathVariable Long id) {
+        countryService.deleteCountry(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

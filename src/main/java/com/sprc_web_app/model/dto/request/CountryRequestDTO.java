@@ -8,7 +8,7 @@ public class CountryRequestDTO {
     @NotEmpty
     private String nume;
 
-    private Double lat;
+    private double lat;
 
-    private Double lon;
+    private double lon;
 }

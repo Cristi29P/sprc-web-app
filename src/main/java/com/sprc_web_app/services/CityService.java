@@ -23,6 +23,8 @@ public class CityService {
     private final CityMapper cityMapper;
 
     public CityIdResponse createCity(CityRequestDTO cityRequestDTO) {
+
+
         CityEntity cityEntity = cityMapper.mapCityRequestToEntity(cityRequestDTO);
         CountryEntity countryEntity = countryRepository.findById(cityRequestDTO.getIdTara()).orElseThrow();
         cityEntity.setCountry(countryEntity);
@@ -37,5 +39,20 @@ public class CityService {
 
     public List<CityDTO> getAllCitiesByCountryId(Long idTara) {
         return cityMapper.mapCityEntitiesToDTOs(cityRepository.findAllByCountryId(idTara));
+    }
+
+    // TODO ADaugat conditie ca daca tara nu exista, sa dea fail
+    // Sau daca nu se respecta conditiile de unicitate
+    public CityIdResponse updateCity(Long id, CityRequestDTO cityRequestDTO) {
+        CityEntity cityEntity = cityRepository.findById(id).orElseThrow();
+        cityEntity.setNume(cityRequestDTO.getNume());
+        cityEntity.setCountry(countryRepository.findById(cityRequestDTO.getIdTara()).orElseThrow());
+        cityEntity = cityRepository.save(cityEntity);
+
+        return cityMapper.mapCityEntityToIdResponse(cityEntity);
+    }
+
+    public void deleteCity(Long id) {
+        cityRepository.deleteById(id);
     }
 }

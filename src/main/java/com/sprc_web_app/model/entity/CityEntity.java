@@ -29,6 +29,6 @@ public class CityEntity {
     @Column(name = "longitudine")
     private Double lon;
 
-    @OneToMany(mappedBy = "city")
+    @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TemperatureEntity> temperatures;
 }

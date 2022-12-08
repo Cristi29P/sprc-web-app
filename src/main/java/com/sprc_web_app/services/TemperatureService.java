@@ -123,4 +123,19 @@ public class TemperatureService {
         }
         return temperatureMapper.mapTemperatureEntitiesToDTOs(temperatureEntities);
     }
+
+    public TemperatureIdResponse updateTemperature(Long id, TemperatureRequestDTO temperatureRequestDTO) {
+        TemperatureEntity temperatureEntity = temperatureRepository.findById(id).orElseThrow();
+        CityEntity cityEntity = cityRepository.findById(temperatureRequestDTO.getIdOras()).orElseThrow();
+
+        temperatureEntity.setCity(cityEntity);
+        temperatureEntity.setValoare(temperatureRequestDTO.getValoare());
+
+        return temperatureMapper.mapTemperatureEntityToIdResponse(temperatureRepository.save(temperatureEntity));
+    }
+
+    public void deleteTemperature(Long id) {
+        temperatureRepository.deleteById(id);
+    }
+
 }

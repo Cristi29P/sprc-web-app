@@ -1,10 +1,12 @@
 package com.sprc_web_app.model.dto.request;
 
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 
 @Data
 public class TemperatureRequestDTO {
-    private Long idOras;
+    @Min(0)
+    private long idOras;
 
-    private Double valoare;
+    private double valoare;
 }
