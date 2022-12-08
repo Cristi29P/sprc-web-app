@@ -34,7 +34,7 @@ public class CityController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<CityIdResponse> updateCity(@PathVariable Long id,@RequestBody CityRequestDTO cityRequestDTO) {
+    public ResponseEntity<CityIdResponse> updateCity(@PathVariable Long id, @Valid @RequestBody CityRequestDTO cityRequestDTO) {
         return ResponseEntity.ok(cityService.updateCity(id, cityRequestDTO));
     }
 

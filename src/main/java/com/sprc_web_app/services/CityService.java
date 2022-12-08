@@ -33,7 +33,7 @@ public class CityService {
 
         Optional<CityEntity> cityAux = cityRepository.findByIdTaraAndNume(cityRequestDTO.getIdTara(), cityRequestDTO.getNume());
 
-        if (!cityAux.isEmpty()) {
+        if (cityAux.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Existing city name and country id");
         }
 
@@ -57,9 +57,23 @@ public class CityService {
     // TODO ADaugat conditie ca daca tara nu exista, sa dea fail
     // Sau daca nu se respecta conditiile de unicitate
     public CityIdResponse updateCity(Long id, CityRequestDTO cityRequestDTO) {
+        Optional<CityEntity> cityAux = cityRepository.findByIdTaraAndNume(cityRequestDTO.getIdTara(), cityRequestDTO.getNume());
+        if (cityAux.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Violates unique constraint");
+        }
+
         CityEntity cityEntity = cityRepository.findById(id).orElseThrow();
         cityEntity.setNume(cityRequestDTO.getNume());
-        cityEntity.setCountry(countryRepository.findById(cityRequestDTO.getIdTara()).orElseThrow());
+
+        Optional<CountryEntity> countryEntityOptional = countryRepository.findById(cityRequestDTO.getIdTara());
+
+        if (countryEntityOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Country does not exist");
+        }
+
+        cityEntity.setCountry(countryEntityOptional.get());
+        cityEntity.setLat(cityRequestDTO.getLat());
+        cityEntity.setLon(cityEntity.getLon());
         cityEntity = cityRepository.saveAndFlush(cityEntity);
 
         return cityMapper.mapCityEntityToIdResponse(cityEntity);

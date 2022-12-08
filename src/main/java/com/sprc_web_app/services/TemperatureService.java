@@ -17,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -86,12 +85,6 @@ public class TemperatureService {
     }
 
     public List<TemperatureDTO> getTemperaturesByCity(Long id_oras, String from, String until) {
-//        boolean cityExists = cityRepository.existsById(id_oras);
-//
-//        if (!cityExists) {
-//            return Collections.emptyList();
-//        }
-
         List<TemperatureEntity> temperatureEntities = temperatureRepository.findAllByCityId(id_oras);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -141,9 +134,13 @@ public class TemperatureService {
 
     public TemperatureIdResponse updateTemperature(Long id, TemperatureRequestDTO temperatureRequestDTO) {
         TemperatureEntity temperatureEntity = temperatureRepository.findById(id).orElseThrow();
-        CityEntity cityEntity = cityRepository.findById(temperatureRequestDTO.getIdOras()).orElseThrow();
+        Optional<CityEntity> cityEntityOptional = cityRepository.findById(temperatureRequestDTO.getIdOras());
 
-        temperatureEntity.setCity(cityEntity);
+        if (cityEntityOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "City not found");
+        }
+
+        temperatureEntity.setCity(cityEntityOptional.get());
         temperatureEntity.setValoare(temperatureRequestDTO.getValoare());
 
         return temperatureMapper.mapTemperatureEntityToIdResponse(temperatureRepository.saveAndFlush(temperatureEntity));

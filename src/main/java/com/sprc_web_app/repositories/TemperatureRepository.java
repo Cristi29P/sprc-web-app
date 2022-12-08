@@ -13,7 +13,7 @@ public interface TemperatureRepository extends JpaRepository<TemperatureEntity, 
 
     List<TemperatureEntity> findAllByCityId(Long cityId);
 
-    @Query("SELECT t from TemperatureEntity t inner join fetch t.city c inner join fetch c.country where c.id = ?1")
+    @Query("SELECT t from TemperatureEntity t inner join fetch t.city c inner join fetch c.country d where d.id = ?1")
     List<TemperatureEntity> findAllByCountryId(Long countryId);
 }
 
