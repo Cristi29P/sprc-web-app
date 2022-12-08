@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "countries")
 public class CountryEntity {
     @Id
-    @GeneratedValue(generator = "countries_id_seq", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, unique = true)
     private Long id;
 

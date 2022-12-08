@@ -4,12 +4,12 @@ import com.sprc_web_app.model.dto.request.TemperatureRequestDTO;
 import com.sprc_web_app.model.dto.response.TemperatureDTO;
 import com.sprc_web_app.model.dto.response.TemperatureIdResponse;
 import com.sprc_web_app.services.TemperatureService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -19,7 +19,7 @@ public class TemperatureController {
     private final TemperatureService temperatureService;
 
     @PostMapping
-    public ResponseEntity<TemperatureIdResponse> createTemperature(@Valid @RequestBody TemperatureRequestDTO temperatureRequestDTO) {
+    public ResponseEntity<TemperatureIdResponse> createTemperature(@RequestBody TemperatureRequestDTO temperatureRequestDTO) {
         return new ResponseEntity<>(temperatureService.createTemperature(temperatureRequestDTO), HttpStatus.CREATED);
     }
 
@@ -32,10 +32,15 @@ public class TemperatureController {
     }
 
     @GetMapping("/cities/{id_oras}")
-    public ResponseEntity<List<TemperatureDTO>> getTemperaturesByCity(@PathVariable Long id_oras,
+    public ResponseEntity<List<TemperatureDTO>> getTemperaturesByCity(@PathVariable(required = false) Long id_oras,
                                                                       @RequestParam(required = false) String from,
                                                                       @RequestParam(required = false) String until) {
         return new ResponseEntity<>(temperatureService.getTemperaturesByCity(id_oras, from, until), HttpStatus.OK);
+    }
+
+    @GetMapping("/cities/")
+    public ResponseEntity<List<TemperatureDTO>> getTemperaturesByCity() {
+        return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
     }
 
     @GetMapping("/countries/{id_tara}")
@@ -46,7 +51,7 @@ public class TemperatureController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TemperatureIdResponse> updateTemperature(@PathVariable Long id, @Valid @RequestBody TemperatureRequestDTO temperatureRequestDTO) {
+    public ResponseEntity<TemperatureIdResponse> updateTemperature(@PathVariable Long id, @RequestBody TemperatureRequestDTO temperatureRequestDTO) {
         return new ResponseEntity<>(temperatureService.updateTemperature(id, temperatureRequestDTO), HttpStatus.OK);
     }
 

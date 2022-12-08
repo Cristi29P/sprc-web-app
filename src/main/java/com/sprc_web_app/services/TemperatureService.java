@@ -10,13 +10,17 @@ import com.sprc_web_app.repositories.CityRepository;
 import com.sprc_web_app.repositories.CountryRepository;
 import com.sprc_web_app.repositories.TemperatureRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +35,14 @@ public class TemperatureService {
 
     public TemperatureIdResponse createTemperature(TemperatureRequestDTO temperatureRequestDTO) {
         TemperatureEntity temperatureEntity = temperatureMapper.mapTemperatureRequestToEntity(temperatureRequestDTO);
-        CityEntity cityEntity = cityRepository.findById(temperatureRequestDTO.getIdOras()).orElseThrow();
-        temperatureEntity.setCity(cityEntity);
-        temperatureEntity = temperatureRepository.save(temperatureEntity);
+        Optional<CityEntity> cityEntityOptional = cityRepository.findById(temperatureRequestDTO.getIdOras());
+
+        if (cityEntityOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "City not found");
+        }
+
+        temperatureEntity.setCity(cityEntityOptional.get());
+        temperatureEntity = temperatureRepository.saveAndFlush(temperatureEntity);
 
         return temperatureMapper.mapTemperatureEntityToIdResponse(temperatureEntity);
     }
@@ -77,6 +86,12 @@ public class TemperatureService {
     }
 
     public List<TemperatureDTO> getTemperaturesByCity(Long id_oras, String from, String until) {
+//        boolean cityExists = cityRepository.existsById(id_oras);
+//
+//        if (!cityExists) {
+//            return Collections.emptyList();
+//        }
+
         List<TemperatureEntity> temperatureEntities = temperatureRepository.findAllByCityId(id_oras);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -131,10 +146,14 @@ public class TemperatureService {
         temperatureEntity.setCity(cityEntity);
         temperatureEntity.setValoare(temperatureRequestDTO.getValoare());
 
-        return temperatureMapper.mapTemperatureEntityToIdResponse(temperatureRepository.save(temperatureEntity));
+        return temperatureMapper.mapTemperatureEntityToIdResponse(temperatureRepository.saveAndFlush(temperatureEntity));
     }
 
     public void deleteTemperature(Long id) {
+        if (!temperatureRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Temperature not found");
+        }
+
         temperatureRepository.deleteById(id);
     }
 

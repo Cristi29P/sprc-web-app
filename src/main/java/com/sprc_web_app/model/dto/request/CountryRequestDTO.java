@@ -1,11 +1,13 @@
 package com.sprc_web_app.model.dto.request;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
 public class CountryRequestDTO {
-    @NotEmpty
+    @NotNull
+    @Pattern(regexp = "^[a-zA-Z ]+$", message = "Country name must contain only letters")
     private String nume;
 
     private double lat;

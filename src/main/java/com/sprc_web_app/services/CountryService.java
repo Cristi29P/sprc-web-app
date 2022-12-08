@@ -23,13 +23,13 @@ public class CountryService {
 
     @Transactional
     public CountryIdResponse createCountry(CountryRequestDTO countryRequestDTO) {
-        boolean exists = countryRepository.existsByNume(countryRequestDTO.getNume());
+        boolean nameConflict = countryRepository.existsByNume(countryRequestDTO.getNume());
 
-        if (!exists) {
-            CountryEntity countryEntity = countryRepository.save(countryMapper.mapCountryRequestToEntity(countryRequestDTO));
+        if (!nameConflict) {
+            CountryEntity countryEntity = countryRepository.saveAndFlush(countryMapper.mapCountryRequestToEntity(countryRequestDTO));
             return countryMapper.mapCountryEntityToIdResponse(countryEntity);
         } else {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Country already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Country already nameConflict");
         }
     }
 
@@ -38,17 +38,26 @@ public class CountryService {
     }
 
     public CountryIdResponse updateCountry(Long id, CountryRequestDTO countryRequestDTO) {
+        boolean nameConflict = countryRepository.existsByNume(countryRequestDTO.getNume());
+        if (nameConflict) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Country name taken");
+        }
+
         CountryEntity countryEntity = countryRepository.findById(id).orElseThrow();
         countryEntity.setNume(countryRequestDTO.getNume());
         countryEntity.setLat(countryRequestDTO.getLat());
         countryEntity.setLon(countryRequestDTO.getLon());
 
-        countryEntity = countryRepository.save(countryEntity);
+        countryEntity = countryRepository.saveAndFlush(countryEntity);
 
         return countryMapper.mapCountryEntityToIdResponse(countryEntity);
     }
 
     public void deleteCountry(Long id) {
+        if (!countryRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Country not found");
+        }
+
         countryRepository.deleteById(id);
     }
 }
