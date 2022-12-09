@@ -6,7 +6,6 @@ import com.sprc_web_app.model.dto.response.TemperatureDTO;
 import com.sprc_web_app.model.entity.CityEntity;
 import com.sprc_web_app.model.entity.TemperatureEntity;
 import com.sprc_web_app.repositories.CityRepository;
-import com.sprc_web_app.repositories.CountryRepository;
 import com.sprc_web_app.repositories.TemperatureRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -27,27 +25,44 @@ public class TemperatureService {
 
     private final CityRepository cityRepository;
 
-    private final CountryRepository countryRepository;
-
     private final TemperatureMapper temperatureMapper;
 
     public Long createTemperature(TemperatureRequestDTO temperatureRequestDTO) {
-        TemperatureEntity temperatureEntity = temperatureMapper.mapTemperatureRequestToEntity(temperatureRequestDTO);
         Optional<CityEntity> cityEntityOptional = cityRepository.findById(temperatureRequestDTO.getIdOras());
-
         if (cityEntityOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "City not found");
         }
 
+        TemperatureEntity temperatureEntity = temperatureMapper.mapTemperatureRequestToEntity(temperatureRequestDTO);
         temperatureEntity.setCity(cityEntityOptional.get());
-        temperatureEntity = temperatureRepository.saveAndFlush(temperatureEntity);
 
-        return temperatureEntity.getId();
+        return temperatureRepository.save(temperatureEntity).getId();
+    }
+
+    private List<TemperatureEntity> sortByDates(List<TemperatureEntity> temperatureEntities, String from, String until) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        if (from != null) {
+            temperatureEntities = temperatureEntities
+                    .stream()
+                    .filter(temperature -> temperature.getTimestamp()
+                            .isAfter(LocalDate.parse(from, formatter).atStartOfDay()))
+                    .toList();
+        }
+
+        if (until != null) {
+            temperatureEntities = temperatureEntities
+                    .stream()
+                    .filter(temperature -> temperature.getTimestamp()
+                            .isBefore(LocalDate.parse(until, formatter).atStartOfDay()))
+                    .toList();
+        }
+
+        return temperatureEntities;
     }
 
     public List<TemperatureDTO> getTemperaturesByCriteria(Double lat, Double lon, String from, String until) {
         List<TemperatureEntity> temperatureEntities = temperatureRepository.findAll();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         if (lat != null) {
             temperatureEntities = temperatureEntities
@@ -63,86 +78,37 @@ public class TemperatureService {
                     .toList();
         }
 
-        if (from != null) {
-            LocalDateTime fromDate = LocalDate.parse(from, formatter).atStartOfDay();
-
-            temperatureEntities = temperatureEntities
-                    .stream()
-                    .filter(temperature -> temperature.getTimestamp().isAfter(fromDate))
-                    .toList();
-        }
-
-        if (until != null) {
-            LocalDateTime untilDate = LocalDate.parse(until, formatter).atStartOfDay();
-
-            temperatureEntities = temperatureEntities
-                    .stream()
-                    .filter(temperature -> temperature.getTimestamp().isBefore(untilDate))
-                    .toList();
-        }
-        return temperatureMapper.mapTemperatureEntitiesToDTOs(temperatureEntities);
+        return temperatureMapper.mapTemperatureEntitiesToDTOs(sortByDates(temperatureEntities, from, until));
     }
 
-    public List<TemperatureDTO> getTemperaturesByCity(Long id_oras, String from, String until) {
-        List<TemperatureEntity> temperatureEntities = temperatureRepository.findAllByCityId(id_oras);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public List<TemperatureDTO> getTemperaturesByCity(Long idOras, String from, String until) {
+        List<TemperatureEntity> temperatureEntities = temperatureRepository.findAllByCityId(idOras);
 
-        if (from != null) {
-            LocalDateTime fromDate = LocalDate.parse(from, formatter).atStartOfDay();
-
-            temperatureEntities = temperatureEntities
-                    .stream()
-                    .filter(temperature -> temperature.getTimestamp().isAfter(fromDate))
-                    .toList();
-        }
-
-        if (until != null) {
-            LocalDateTime untilDate = LocalDate.parse(until, formatter).atStartOfDay();
-
-            temperatureEntities = temperatureEntities
-                    .stream()
-                    .filter(temperature -> temperature.getTimestamp().isBefore(untilDate))
-                    .toList();
-        }
-        return temperatureMapper.mapTemperatureEntitiesToDTOs(temperatureEntities);
+        return temperatureMapper.mapTemperatureEntitiesToDTOs(sortByDates(temperatureEntities, from, until));
     }
 
-    public List<TemperatureDTO> getTemperaturesByCountry(Long id_tara, String from, String until) {
-        List<TemperatureEntity> temperatureEntities = temperatureRepository.findAllByCountryId(id_tara);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public List<TemperatureDTO> getTemperaturesByCountry(Long idTara, String from, String until) {
+        List<TemperatureEntity> temperatureEntities = temperatureRepository.findAllByCountryId(idTara);
 
-        if (from != null) {
-            LocalDateTime fromDate = LocalDate.parse(from, formatter).atStartOfDay();
-
-            temperatureEntities = temperatureEntities
-                    .stream()
-                    .filter(temperature -> temperature.getTimestamp().isAfter(fromDate))
-                    .toList();
-        }
-
-        if (until != null) {
-            LocalDateTime untilDate = LocalDate.parse(until, formatter).atStartOfDay();
-
-            temperatureEntities = temperatureEntities
-                    .stream()
-                    .filter(temperature -> temperature.getTimestamp().isBefore(untilDate))
-                    .toList();
-        }
-        return temperatureMapper.mapTemperatureEntitiesToDTOs(temperatureEntities);
+        return temperatureMapper.mapTemperatureEntitiesToDTOs(sortByDates(temperatureEntities, from, until));
     }
 
     public Long updateTemperature(Long id, TemperatureRequestDTO temperatureRequestDTO) {
-        TemperatureEntity temperatureEntity = temperatureRepository.findById(id).orElseThrow();
-        Optional<CityEntity> cityEntityOptional = cityRepository.findById(temperatureRequestDTO.getIdOras());
+        Optional<TemperatureEntity> temperatureEntityOptional = temperatureRepository.findById(id);
+        if (temperatureEntityOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Temperature does not exist");
+        }
 
+        Optional<CityEntity> cityEntityOptional = cityRepository.findById(temperatureRequestDTO.getIdOras());
         if (cityEntityOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "City not found");
         }
 
+        TemperatureEntity temperatureEntity = temperatureEntityOptional.get();
         temperatureEntity.setCity(cityEntityOptional.get());
         temperatureEntity.setValoare(temperatureRequestDTO.getValoare());
 
-        return temperatureRepository.saveAndFlush(temperatureEntity).getId();
+        return temperatureRepository.save(temperatureEntity).getId();
     }
 
     public void deleteTemperature(Long id) {
@@ -152,5 +118,4 @@ public class TemperatureService {
 
         temperatureRepository.deleteById(id);
     }
-
 }

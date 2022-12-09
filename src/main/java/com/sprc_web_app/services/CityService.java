@@ -25,24 +25,19 @@ public class CityService {
     private final CityMapper cityMapper;
 
     public Long createCity(CityRequestDTO cityRequestDTO) {
-        boolean existsById = countryRepository.existsById(cityRequestDTO.getIdTara());
-        if (!existsById) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Country not found");
-        }
-
-        Optional<CityEntity> cityAux = cityRepository.findByIdTaraAndNume(cityRequestDTO.getIdTara(), cityRequestDTO.getNume());
-
-        if (cityAux.isPresent()) {
+        if (cityRepository.findByIdTaraAndNume(cityRequestDTO.getIdTara(), cityRequestDTO.getNume()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Existing city name and country id");
         }
 
+        Optional<CountryEntity> countryEntityOptional = countryRepository.findById(cityRequestDTO.getIdTara());
+        if (countryEntityOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Country not found");
+        }
 
         CityEntity cityEntity = cityMapper.mapCityRequestToEntity(cityRequestDTO);
-        CountryEntity countryEntity = countryRepository.findById(cityRequestDTO.getIdTara()).orElseThrow();
-        cityEntity.setCountry(countryEntity);
-        cityEntity = cityRepository.saveAndFlush(cityEntity);
+        cityEntity.setCountry(countryEntityOptional.get());
 
-        return cityEntity.getId();
+        return cityRepository.save(cityEntity).getId();
     }
 
     public List<CityDTO> getAllCities() {
@@ -53,29 +48,28 @@ public class CityService {
         return cityMapper.mapCityEntitiesToDTOs(cityRepository.findAllByCountryId(idTara));
     }
 
-    // TODO ADaugat conditie ca daca tara nu exista, sa dea fail
-    // Sau daca nu se respecta conditiile de unicitate
     public Long updateCity(Long id, CityRequestDTO cityRequestDTO) {
-        Optional<CityEntity> cityAux = cityRepository.findByIdTaraAndNume(cityRequestDTO.getIdTara(), cityRequestDTO.getNume());
-        if (cityAux.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Violates unique constraint");
+        if (cityRepository.findByIdTaraAndNume(cityRequestDTO.getIdTara(), cityRequestDTO.getNume()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Existing city name and country id");
         }
 
-        CityEntity cityEntity = cityRepository.findById(id).orElseThrow();
-        cityEntity.setNume(cityRequestDTO.getNume());
+        Optional<CityEntity> cityEntityOptional = cityRepository.findById(id);
+        if (cityEntityOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "City does not exist");
+        }
 
         Optional<CountryEntity> countryEntityOptional = countryRepository.findById(cityRequestDTO.getIdTara());
-
         if (countryEntityOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Country does not exist");
         }
 
+        CityEntity cityEntity = cityEntityOptional.get();
         cityEntity.setCountry(countryEntityOptional.get());
+        cityEntity.setNume(cityRequestDTO.getNume());
         cityEntity.setLat(cityRequestDTO.getLat());
-        cityEntity.setLon(cityEntity.getLon());
-        cityEntity = cityRepository.saveAndFlush(cityEntity);
+        cityEntity.setLon(cityRequestDTO.getLon());
 
-        return cityEntity.getId();
+        return cityRepository.save(cityEntity).getId();
     }
 
     public void deleteCity(Long id) {

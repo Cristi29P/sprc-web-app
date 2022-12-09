@@ -8,28 +8,22 @@ import com.sprc_web_app.repositories.CountryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CountryService {
     private final CountryRepository countryRepository;
-
     private final CountryMapper countryMapper;
 
-    @Transactional
     public Long createCountry(CountryRequestDTO countryRequestDTO) {
-        boolean nameConflict = countryRepository.existsByNume(countryRequestDTO.getNume());
-
-        if (!nameConflict) {
-            CountryEntity countryEntity = countryRepository.saveAndFlush(countryMapper.mapCountryRequestToEntity(countryRequestDTO));
-            return countryEntity.getId();
-        } else {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Country already nameConflict");
+        if (countryRepository.existsByNume(countryRequestDTO.getNume())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Country name taken!");
         }
+        return countryRepository.save(countryMapper.mapCountryRequestToEntity(countryRequestDTO)).getId();
     }
 
     public List<CountryDTO> getAllCountries() {
@@ -37,19 +31,21 @@ public class CountryService {
     }
 
     public Long updateCountry(Long id, CountryRequestDTO countryRequestDTO) {
-        boolean nameConflict = countryRepository.existsByNume(countryRequestDTO.getNume());
-        if (nameConflict) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Country name taken");
+        if (countryRepository.existsByNume(countryRequestDTO.getNume())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Country name taken!");
         }
 
-        CountryEntity countryEntity = countryRepository.findById(id).orElseThrow();
+        Optional<CountryEntity> countryEntityOptional = countryRepository.findById(id);
+        if (countryEntityOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Country non existent");
+        }
+
+        CountryEntity countryEntity = countryEntityOptional.get();
         countryEntity.setNume(countryRequestDTO.getNume());
         countryEntity.setLat(countryRequestDTO.getLat());
         countryEntity.setLon(countryRequestDTO.getLon());
 
-        countryEntity = countryRepository.saveAndFlush(countryEntity);
-
-        return countryEntity.getId();
+        return countryRepository.save(countryEntity).getId();
     }
 
     public void deleteCountry(Long id) {

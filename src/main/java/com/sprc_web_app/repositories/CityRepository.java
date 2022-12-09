@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("NullableProblems")
 @Repository
 public interface CityRepository extends JpaRepository<CityEntity, Long> {
     @Query("SELECT c FROM CityEntity c left join fetch c.country")
