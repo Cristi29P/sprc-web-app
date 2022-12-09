@@ -3,7 +3,6 @@ package com.sprc_web_app.services;
 import com.sprc_web_app.mappers.CountryMapper;
 import com.sprc_web_app.model.dto.request.CountryRequestDTO;
 import com.sprc_web_app.model.dto.response.CountryDTO;
-import com.sprc_web_app.model.dto.response.CountryIdResponse;
 import com.sprc_web_app.model.entity.CountryEntity;
 import com.sprc_web_app.repositories.CountryRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +21,12 @@ public class CountryService {
     private final CountryMapper countryMapper;
 
     @Transactional
-    public CountryIdResponse createCountry(CountryRequestDTO countryRequestDTO) {
+    public Long createCountry(CountryRequestDTO countryRequestDTO) {
         boolean nameConflict = countryRepository.existsByNume(countryRequestDTO.getNume());
 
         if (!nameConflict) {
             CountryEntity countryEntity = countryRepository.saveAndFlush(countryMapper.mapCountryRequestToEntity(countryRequestDTO));
-            return countryMapper.mapCountryEntityToIdResponse(countryEntity);
+            return countryEntity.getId();
         } else {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Country already nameConflict");
         }
@@ -37,7 +36,7 @@ public class CountryService {
         return countryMapper.mapCountryEntitiesToDTOs(countryRepository.findAll());
     }
 
-    public CountryIdResponse updateCountry(Long id, CountryRequestDTO countryRequestDTO) {
+    public Long updateCountry(Long id, CountryRequestDTO countryRequestDTO) {
         boolean nameConflict = countryRepository.existsByNume(countryRequestDTO.getNume());
         if (nameConflict) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Country name taken");
@@ -50,7 +49,7 @@ public class CountryService {
 
         countryEntity = countryRepository.saveAndFlush(countryEntity);
 
-        return countryMapper.mapCountryEntityToIdResponse(countryEntity);
+        return countryEntity.getId();
     }
 
     public void deleteCountry(Long id) {

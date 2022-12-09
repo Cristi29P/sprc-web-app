@@ -2,7 +2,7 @@ package com.sprc_web_app.controllers;
 
 import com.sprc_web_app.model.dto.request.CountryRequestDTO;
 import com.sprc_web_app.model.dto.response.CountryDTO;
-import com.sprc_web_app.model.dto.response.CountryIdResponse;
+import com.sprc_web_app.model.dto.response.ObjectResponse;
 import com.sprc_web_app.services.CountryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ public class CountryController {
     private final CountryService countryService;
 
     @PostMapping
-    public ResponseEntity<CountryIdResponse> createCountry(@Valid @RequestBody CountryRequestDTO countryRequestDTO) {
-        return new ResponseEntity<>(countryService.createCountry(countryRequestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ObjectResponse<Long>> createCountry(@Valid @RequestBody CountryRequestDTO countryRequestDTO) {
+        return new ResponseEntity<>(new ObjectResponse<>(countryService.createCountry(countryRequestDTO)), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -29,8 +29,9 @@ public class CountryController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<CountryIdResponse> updateCountry(@PathVariable Long id,@Valid @RequestBody CountryRequestDTO countryRequestDTO) {
-        return ResponseEntity.ok(countryService.updateCountry(id, countryRequestDTO));
+    public ResponseEntity<ObjectResponse<Long>> updateCountry(@PathVariable Long id,
+                                                           @Valid @RequestBody CountryRequestDTO countryRequestDTO) {
+        return ResponseEntity.ok(new ObjectResponse<>(countryService.updateCountry(id, countryRequestDTO)));
     }
 
 

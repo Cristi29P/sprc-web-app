@@ -7,10 +7,10 @@ import lombok.Data;
 @Data
 public class CityRequestDTO {
 
-    private long idTara;
+    private Long idTara;
     @NotNull
     @Pattern(regexp = "^[a-zA-Z ]+$", message = "Country name must contain only letters")
     private String nume;
-    private double lat;
-    private double lon;
+    private Double lat;
+    private Double lon;
 }

@@ -3,7 +3,6 @@ package com.sprc_web_app.services;
 import com.sprc_web_app.mappers.CityMapper;
 import com.sprc_web_app.model.dto.request.CityRequestDTO;
 import com.sprc_web_app.model.dto.response.CityDTO;
-import com.sprc_web_app.model.dto.response.CityIdResponse;
 import com.sprc_web_app.model.entity.CityEntity;
 import com.sprc_web_app.model.entity.CountryEntity;
 import com.sprc_web_app.repositories.CityRepository;
@@ -25,7 +24,7 @@ public class CityService {
 
     private final CityMapper cityMapper;
 
-    public CityIdResponse createCity(CityRequestDTO cityRequestDTO) {
+    public Long createCity(CityRequestDTO cityRequestDTO) {
         boolean existsById = countryRepository.existsById(cityRequestDTO.getIdTara());
         if (!existsById) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Country not found");
@@ -43,7 +42,7 @@ public class CityService {
         cityEntity.setCountry(countryEntity);
         cityEntity = cityRepository.saveAndFlush(cityEntity);
 
-        return cityMapper.mapCityEntityToIdResponse(cityEntity);
+        return cityEntity.getId();
     }
 
     public List<CityDTO> getAllCities() {
@@ -56,7 +55,7 @@ public class CityService {
 
     // TODO ADaugat conditie ca daca tara nu exista, sa dea fail
     // Sau daca nu se respecta conditiile de unicitate
-    public CityIdResponse updateCity(Long id, CityRequestDTO cityRequestDTO) {
+    public Long updateCity(Long id, CityRequestDTO cityRequestDTO) {
         Optional<CityEntity> cityAux = cityRepository.findByIdTaraAndNume(cityRequestDTO.getIdTara(), cityRequestDTO.getNume());
         if (cityAux.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Violates unique constraint");
@@ -76,7 +75,7 @@ public class CityService {
         cityEntity.setLon(cityEntity.getLon());
         cityEntity = cityRepository.saveAndFlush(cityEntity);
 
-        return cityMapper.mapCityEntityToIdResponse(cityEntity);
+        return cityEntity.getId();
     }
 
     public void deleteCity(Long id) {

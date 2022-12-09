@@ -2,7 +2,6 @@ package com.sprc_web_app.mappers;
 
 import com.sprc_web_app.model.dto.request.CountryRequestDTO;
 import com.sprc_web_app.model.dto.response.CountryDTO;
-import com.sprc_web_app.model.dto.response.CountryIdResponse;
 import com.sprc_web_app.model.entity.CountryEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,8 +14,6 @@ public interface CountryMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "cities", ignore = true)
     CountryEntity mapCountryRequestToEntity(CountryRequestDTO countryRequestDTO);
-
-    CountryIdResponse mapCountryEntityToIdResponse(CountryEntity countryEntity);
 
     List<CountryDTO> mapCountryEntitiesToDTOs(List<CountryEntity> countryEntityList);
 }

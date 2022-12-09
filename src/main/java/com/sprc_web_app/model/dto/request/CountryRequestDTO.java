@@ -10,7 +10,7 @@ public class CountryRequestDTO {
     @Pattern(regexp = "^[a-zA-Z ]+$", message = "Country name must contain only letters")
     private String nume;
 
-    private double lat;
+    private Double lat;
 
-    private double lon;
+    private Double lon;
 }

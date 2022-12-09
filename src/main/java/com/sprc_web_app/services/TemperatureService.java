@@ -3,7 +3,6 @@ package com.sprc_web_app.services;
 import com.sprc_web_app.mappers.TemperatureMapper;
 import com.sprc_web_app.model.dto.request.TemperatureRequestDTO;
 import com.sprc_web_app.model.dto.response.TemperatureDTO;
-import com.sprc_web_app.model.dto.response.TemperatureIdResponse;
 import com.sprc_web_app.model.entity.CityEntity;
 import com.sprc_web_app.model.entity.TemperatureEntity;
 import com.sprc_web_app.repositories.CityRepository;
@@ -32,7 +31,7 @@ public class TemperatureService {
 
     private final TemperatureMapper temperatureMapper;
 
-    public TemperatureIdResponse createTemperature(TemperatureRequestDTO temperatureRequestDTO) {
+    public Long createTemperature(TemperatureRequestDTO temperatureRequestDTO) {
         TemperatureEntity temperatureEntity = temperatureMapper.mapTemperatureRequestToEntity(temperatureRequestDTO);
         Optional<CityEntity> cityEntityOptional = cityRepository.findById(temperatureRequestDTO.getIdOras());
 
@@ -43,7 +42,7 @@ public class TemperatureService {
         temperatureEntity.setCity(cityEntityOptional.get());
         temperatureEntity = temperatureRepository.saveAndFlush(temperatureEntity);
 
-        return temperatureMapper.mapTemperatureEntityToIdResponse(temperatureEntity);
+        return temperatureEntity.getId();
     }
 
     public List<TemperatureDTO> getTemperaturesByCriteria(Double lat, Double lon, String from, String until) {
@@ -132,7 +131,7 @@ public class TemperatureService {
         return temperatureMapper.mapTemperatureEntitiesToDTOs(temperatureEntities);
     }
 
-    public TemperatureIdResponse updateTemperature(Long id, TemperatureRequestDTO temperatureRequestDTO) {
+    public Long updateTemperature(Long id, TemperatureRequestDTO temperatureRequestDTO) {
         TemperatureEntity temperatureEntity = temperatureRepository.findById(id).orElseThrow();
         Optional<CityEntity> cityEntityOptional = cityRepository.findById(temperatureRequestDTO.getIdOras());
 
@@ -143,7 +142,7 @@ public class TemperatureService {
         temperatureEntity.setCity(cityEntityOptional.get());
         temperatureEntity.setValoare(temperatureRequestDTO.getValoare());
 
-        return temperatureMapper.mapTemperatureEntityToIdResponse(temperatureRepository.saveAndFlush(temperatureEntity));
+        return temperatureRepository.saveAndFlush(temperatureEntity).getId();
     }
 
     public void deleteTemperature(Long id) {

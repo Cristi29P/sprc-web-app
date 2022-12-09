@@ -2,7 +2,7 @@ package com.sprc_web_app.controllers;
 
 import com.sprc_web_app.model.dto.request.CityRequestDTO;
 import com.sprc_web_app.model.dto.response.CityDTO;
-import com.sprc_web_app.model.dto.response.CityIdResponse;
+import com.sprc_web_app.model.dto.response.ObjectResponse;
 import com.sprc_web_app.services.CityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ public class CityController {
     private final CityService cityService;
 
     @PostMapping
-    public ResponseEntity<CityIdResponse> createCity(@Valid @RequestBody CityRequestDTO cityRequestDTO) {
-        return new ResponseEntity<>(cityService.createCity(cityRequestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ObjectResponse<Long>> createCity(@Valid @RequestBody CityRequestDTO cityRequestDTO) {
+        return new ResponseEntity<>(new ObjectResponse<>(cityService.createCity(cityRequestDTO)), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -29,13 +29,13 @@ public class CityController {
     }
 
     @GetMapping("/country/{id_Tara}")
-    public ResponseEntity<List<CityDTO>> getAllCitiesByCountry(@PathVariable Long id_Tara) {
-        return ResponseEntity.ok(cityService.getAllCitiesByCountryId(id_Tara));
+    public ResponseEntity<List<CityDTO>> getAllCitiesByCountry(@PathVariable(name = "id_Tara") Long idTara) {
+        return ResponseEntity.ok(cityService.getAllCitiesByCountryId(idTara));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<CityIdResponse> updateCity(@PathVariable Long id, @Valid @RequestBody CityRequestDTO cityRequestDTO) {
-        return ResponseEntity.ok(cityService.updateCity(id, cityRequestDTO));
+    public ResponseEntity<ObjectResponse<Long>> updateCity(@PathVariable Long id, @Valid @RequestBody CityRequestDTO cityRequestDTO) {
+        return ResponseEntity.ok(new ObjectResponse<>(cityService.updateCity(id, cityRequestDTO)));
     }
 
     @DeleteMapping("{id}")
